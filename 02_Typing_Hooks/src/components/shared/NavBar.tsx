@@ -1,6 +1,7 @@
-import { useContext } from 'react';
+import { useContext, useRef } from 'react';
 import { NavLink, useNavigate } from 'react-router';
 import { ThemeContext } from '../../context/ThemeContext';
+import type { UsableThemes } from '../../context/ThemeContext';
 
 const navLinkClass = ({ isActive }) =>
   isActive ? `underline underline-offset-2` : ``;
@@ -8,11 +9,29 @@ const navLinkClass = ({ isActive }) =>
 const NavBar = () => {
   const navigate = useNavigate();
 
-  // Konsumiert ThemeContext - hat Zugriff auf den State-Setter
-  const { setTheme } = useContext(ThemeContext);
+  const anchoredValue = useRef([1, 2, 3]);
+
+  const dialogRef = useRef<HTMLDialogElement>(null);
+
+  const { changeTheme, theme } = useContext(ThemeContext);
 
   return (
     <div className="navbar bg-base-100 shadow-sm">
+      <button
+        onClick={() => {
+          // document.querySelector('dialog').showModal();
+          dialogRef.current.showModal();
+        }}
+      >
+        Open modal
+      </button>
+      <dialog
+        ref={dialogRef}
+        className="inset-1/2 border-cyan-500 bg-indigo-700 p-3"
+      >
+        Hallo vom Dialog
+      </dialog>
+
       <div className="flex-1">
         <a className="btn btn-ghost text-xl" href="/">
           Travel Agency
@@ -26,7 +45,7 @@ const NavBar = () => {
         <select
           defaultValue={'halloween'}
           className="select"
-          onChange={(e) => setTheme(e.target.value)}
+          onChange={(e) => changeTheme(e.target.value as UsableThemes)}
         >
           <option value="halloween">Halloween</option>
           <option value="retro">Retro</option>

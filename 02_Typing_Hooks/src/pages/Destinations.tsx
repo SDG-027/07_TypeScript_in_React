@@ -1,9 +1,10 @@
 import { useOutletContext } from 'react-router';
 import { DestinationCard } from '../components';
 import { use } from 'react';
+import type { MainLayoutContext } from '../layouts/MainLayout';
 
 const Destinations = () => {
-  const destinationsPromise = useOutletContext();
+  const { destinationsPromise } = useOutletContext<MainLayoutContext>();
   const destinations = use(destinationsPromise);
   return (
     <div className="mx-auto max-w-7xl space-y-10 px-4">
@@ -18,12 +19,12 @@ const Destinations = () => {
         </p>
       </section>
       <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {destinations.map(({ title, image, text, slug }) => (
+        {destinations.map(({ title, image, description, slug }) => (
           <DestinationCard
             key={slug}
             title={title}
             image={image}
-            text={text}
+            text={description}
             slug={slug}
           />
         ))}

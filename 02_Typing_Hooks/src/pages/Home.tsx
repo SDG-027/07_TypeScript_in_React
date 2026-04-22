@@ -1,20 +1,24 @@
 import { useOutletContext } from 'react-router';
 import { DestinationCard } from '../components';
 import { use } from 'react';
+import type { MainLayoutContext } from '../layouts/MainLayout';
 
 const Home = () => {
-  const destinationsPromise = useOutletContext();
+  const { destinationsPromise } = useOutletContext<MainLayoutContext>();
 
   const destinations = use(destinationsPromise);
 
-  const handleSearch = (e) => {
+  const handleSearch: React.SubmitEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
   };
+
+  // function handleSearch2(e: React.SubmitEvent<HTMLFormElement>) {
+  // }
 
   return (
     <div className="space-y-16">
       <title>Travel Agency</title>
-      <meta description="A cool travelling Page" />
+      {/*<meta description="A cool travelling Page" />*/}
       <section className="space-y-4 text-center">
         <h1 className="text-primary text-4xl font-bold">
           Find Your Next Student Adventure
