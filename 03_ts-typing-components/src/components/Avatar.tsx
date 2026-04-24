@@ -1,7 +1,13 @@
 // components/Avatar.tsx
 // This component should receive `url` (string) and `altText` (string)
-const Avatar = ({ url, altText }) => {
-  return <img src={url} alt={altText} />;
+
+interface Props {
+  url?: string;
+  altText?: string;
+}
+
+const Avatar = ({ url, altText }: Props) => {
+  return <img src={url ?? 'https://placeholderimage'} alt={altText ?? ''} />;
 };
 
 export default Avatar;

@@ -1,6 +1,11 @@
 // components/Status.tsx
 // This component should receive a `status` prop with one of: "loading", "success" , "error"
-const Status = ({ status }) => {
+//
+type StatusProps = {
+  status: 'loading' | 'success' | 'error';
+};
+
+const Status = ({ status }: StatusProps) => {
   return <p>Status: {status}</p>;
 };
 

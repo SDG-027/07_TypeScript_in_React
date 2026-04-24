@@ -7,18 +7,31 @@ import Alert from './components/Alert';
 import ProductList from './components/ProductList';
 import Toggle from './components/Toggle';
 import Avatar from './components/Avatar';
+import { useState } from 'react';
 
 const App = () => {
+  const [isOn, setIsOn] = useState(false);
+
+  function onToggle() {
+    setIsOn((on) => !on);
+  }
+
   return (
     <Container style={{ maxWidth: '600px', margin: '0 auto' }}>
-      <Greeting name={123} />
-      <Counter initialCount='0' />
-      <Status status='idle' />
-      <ProfileCard user={{ name: 'Ada' }} />
-      <Alert message={false} type='info' />
-      <ProductList products={[{ id: 1, title: 'Book' }, { title: 'Pen' }]} />
-      <Toggle isOn='yes' onToggle={'not a function'} />
-      <Avatar url={1234} altText={false} />
+      <Greeting name={'William'} />
+      <Greeting />
+      <Status status="loading" />
+      <ProfileCard user={{ name: 'Ada', age: 20 }} />
+      <Alert message={'Fetch failed'} type="info" />
+      <ProductList
+        products={[
+          { id: 1, title: 'Book' },
+          { id: 123, title: 'Pen' },
+        ]}
+      />
+      <Avatar url={'https://placeholderimage'} />
+      <Counter initialCount={13} />
+      <Toggle isOn={isOn} onToggle={onToggle} setIsOn={setIsOn} />
     </Container>
   );
 };
