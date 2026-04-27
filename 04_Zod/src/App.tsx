@@ -1,42 +1,64 @@
-import { sleep, validate } from './utils/index.js';
+import z from 'zod';
+import { FormSchema, sleep } from './utils/index.js';
 import { useActionState } from 'react';
 
+// Der Ausgangszustand des Formulars — wird beim ersten Render und nach erfolgreichem Absenden verwendet.
+// Alle Felder sind leer, alle Fehler-Arrays enthalten einen leeren String, success ist false.
 const initialState = {
   input: {
     name: '',
+    number: '0',
     email: '',
     message: '',
   },
   errors: {
-    name: '',
-    email: '',
-    message: '',
+    name: [''],
+    number: [''],
+    email: [''],
+    message: [''],
   },
   success: false,
 };
 
+// TypeScript-Typ wird direkt aus initialState abgeleitet — so bleibt der Typ immer synchron mit der Struktur
 type FormState = typeof initialState;
 
-async function action(prevState: FormState, formData: FormData) {
+// Die Action — wird aufgerufen, wenn das Formular abgeschickt wird.
+// _prevState ist der vorherige Zustand (wird hier nicht gebraucht, muss aber als Parameter vorhanden sein).
+// formData enthält alle Felder des Formulars als rohe Strings.
+async function action(_prevState: FormState, formData: FormData) {
+  // FormData liefert immer Strings — daher der Cast zu FormState['input']
   const data = Object.fromEntries(formData) as FormState['input'];
 
-  const validationErrors = validate(data);
-  if (Object.keys(validationErrors).length !== 0) {
+  // safeParse validiert die Formulardaten gegen das Schema — ohne Exception bei Fehler
+  const { success, data: dataZod, error } = FormSchema.safeParse(data);
+
+  if (success) {
+    console.log(dataZod);
+    await sleep(1000); // simuliert einen echten fetch/API-Aufruf
+    // Bei Erfolg: Formular zurücksetzen und success-Flag setzen
+    return {
+      ...initialState,
+      success: true,
+    };
+  } else {
+    // z.flattenError() wandelt den Zod-Fehler in ein flaches Objekt um:
+    // { fieldErrors: { name: ['Name required'], email: ['Invalid email'], ... } }
+    // Das macht es einfach, die Fehler pro Feld im JSX anzuzeigen
+    const validationErrors = z.flattenError(error).fieldErrors;
+
+    // Bei Fehler: eingegebene Werte behalten (damit der Nutzer nicht alles neu tippen muss)
+    // und die Fehlermeldungen in den State schreiben
     return {
       input: data,
-      errors: { ...prevState.errors, ...validationErrors },
       success: false,
+      errors: { ...initialState.errors, ...validationErrors },
     };
   }
-  await sleep(1000); // simuliert fetch()
-
-  return {
-    ...initialState,
-    success: true,
-  };
 }
 
 export default function App() {
+  // useActionState verbindet die Action mit dem Komponenten-State.
   const [state, formAction, isPending] = useActionState(action, initialState);
 
   return (
@@ -62,9 +84,35 @@ export default function App() {
               defaultValue={state?.input?.name}
             />
             {state?.errors?.name && (
-              <p className="mt-1 text-sm text-red-600">{state.errors.name}</p>
+              <p className="mt-1 text-sm text-red-600">
+                {state.errors.name[0]}
+              </p>
             )}
           </div>
+
+          <div>
+            <label
+              className="block text-sm font-medium text-gray-200"
+              htmlFor="number"
+            >
+              Number
+            </label>
+            <input
+              name="number"
+              // z.coerce.number() im Schema übernimmt die Umwandlung von String zu Zahl.
+              type="number"
+              id="number"
+              className="mt-1 w-full rounded border border-gray-300 px-3 py-2"
+              placeholder="0-123"
+              defaultValue={state?.input?.number}
+            />
+            {state?.errors?.number && (
+              <p className="mt-1 text-sm text-red-600">
+                {state.errors.number[0]}
+              </p>
+            )}
+          </div>
+
           <div>
             <label
               className="block text-sm font-medium text-gray-700"
@@ -80,14 +128,18 @@ export default function App() {
               defaultValue={state?.input?.email}
             />
             {state?.errors?.email && (
-              <p className="mt-1 text-sm text-red-600">{state.errors.email}</p>
+              <p className="mt-1 text-sm text-red-600">
+                {state.errors.email[0]}
+              </p>
             )}
           </div>
+
           <div>
             <label
               className="block text-sm font-medium text-gray-700"
               htmlFor="message"
             >
+              {/*{dict[currLang].message}*/}
               Message
             </label>
             <textarea
@@ -100,15 +152,17 @@ export default function App() {
             />
             {state?.errors?.message && (
               <p className="mt-1 text-sm text-red-600">
-                {state.errors.message}
+                {state.errors.message[0]}
               </p>
             )}
           </div>
 
+          {/* Erfolgsmeldung — wird nur angezeigt, wenn state.success === true */}
           {state?.success && (
             <p className="text-sm text-green-500">Thanks for your Message!</p>
           )}
 
+          {/* isPending deaktiviert den Button während die Action läuft — verhindert Doppel-Submits */}
           <button
             type="submit"
             disabled={isPending}
