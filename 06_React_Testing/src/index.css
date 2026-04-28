@@ -1,0 +1,5 @@
+@import 'tailwindcss';
+@import 'daisyui/daisyui.css';
+@plugin 'daisyui/index.js' {
+  themes: forest;
+}
