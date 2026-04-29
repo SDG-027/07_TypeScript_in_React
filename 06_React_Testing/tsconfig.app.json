@@ -6,6 +6,7 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
+    "types": ["vite/client", "@testing-library/jest-dom"],
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -26,8 +27,8 @@
     /* Paths */
     "baseUrl": "./src",
     "paths": {
-      "@/*": ["*"]
-    }
+      "@/*": ["*"],
+    },
   },
-  "include": ["src"]
+  "include": ["src"],
 }
